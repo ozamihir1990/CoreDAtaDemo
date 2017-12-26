@@ -55,10 +55,11 @@ class ViewController: UIViewController {
                     return
             }
             guard let textfield1 = alert.textFields?[1],
-                let age = textfield1.text else {
+                let age = Double(textfield1.text!) else {
                     return
             }
-            self.save(name: nameToSave)
+            //self.save(name: nameToSave)
+            self.save(name: nameToSave, age: age)
             self.tableView.reloadData()
         }
         let cancelAction = UIAlertAction(title: "Cancel", style: .default)
@@ -74,7 +75,7 @@ class ViewController: UIViewController {
         present(alert, animated: true)
     }
     // for add data.
-    func save(name: String) {
+    func save(name: String,age: Double) {
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
             return
         }
@@ -85,7 +86,7 @@ class ViewController: UIViewController {
         let person = NSManagedObject(entity: entity, insertInto: managedContext)
         //3
         person.setValue(name, forKey: "name")
-        person.setValue(25, forKey: "age")
+        person.setValue(age, forKey: "age")
         //4
         do {
             try managedContext.save()
@@ -107,12 +108,11 @@ extension ViewController: UITableViewDataSource {
         -> UITableViewCell {
             
             let person = people[indexPath.row]
-            let cell =
-                tableView.dequeueReusableCell(withIdentifier: "Cell",
-                                              for: indexPath)
+            var cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
+                cell = UITableViewCell(style: UITableViewCellStyle.value1, reuseIdentifier: "Cell")
             cell.textLabel?.text =
                 person.value(forKeyPath: "name") as? String
-            cell.detailTextLabel?.text = String (describing: person.value(forKeyPath: "age") as? integer_t)
+            cell.detailTextLabel?.text = String (describing: person.value(forKeyPath: "age") as! integer_t)
             return cell
     }
 }
