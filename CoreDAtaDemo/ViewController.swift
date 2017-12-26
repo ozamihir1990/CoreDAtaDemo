@@ -86,6 +86,7 @@ class ViewController: UIViewController {
         //3
         person.setValue(name, forKey: "name")
         person.setValue(25, forKey: "age")
+        print("Test")
         //4
         do {
             try managedContext.save()
