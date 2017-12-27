@@ -9,7 +9,7 @@
 import UIKit
 import CoreData
 
-class ViewController: UIViewController {
+class ViewController: UIViewController, UITableViewDelegate {
     
     @IBOutlet var tableView: UITableView!
     
@@ -98,21 +98,27 @@ class ViewController: UIViewController {
 }
 
 extension ViewController: UITableViewDataSource {
-    func tableView(_ tableView: UITableView,
-                   numberOfRowsInSection section: Int) -> Int {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return people.count
     }
-    
-    func tableView(_ tableView: UITableView,
-                   cellForRowAt indexPath: IndexPath)
-        -> UITableViewCell {
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
             
             let person = people[indexPath.row]
             var cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
                 cell = UITableViewCell(style: UITableViewCellStyle.value1, reuseIdentifier: "Cell")
-            cell.textLabel?.text =
-                person.value(forKeyPath: "name") as? String
+            cell.textLabel?.text = person.value(forKeyPath: "name") as? String
             cell.detailTextLabel?.text = String (describing: person.value(forKeyPath: "age") as! integer_t)
             return cell
+    }
+    func tableView(_ tableView: UITableView, willDeselectRowAtIndexPath indexPath: NSIndexPath) {
+        let cell = self.tableView.cellForRow(at: indexPath as IndexPath)
+        NSLog("did select and the text is \(String(describing: cell?.textLabel?.text))")
+    }
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let cell = tableView.cellForRow(at: indexPath)!
+        let person = people[indexPath.row]
+        cell.accessoryType = UITableViewCellAccessoryType.none
+        NSLog("select name is \(String(describing: person.value(forKeyPath: "name") as! String))")
+        NSLog("select age is \(String(describing: person.value(forKeyPath: "age") as! integer_t))")
     }
 }
