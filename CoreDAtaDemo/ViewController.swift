@@ -15,7 +15,6 @@ class ViewController: UIViewController, UITableViewDelegate {
     
     var people: [NSManagedObject] = []
     
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "The List"
@@ -25,18 +24,12 @@ class ViewController: UIViewController, UITableViewDelegate {
         super.viewWillAppear(animated)
         // For fetch data.
         //1
-        guard let appDelegate =
-            UIApplication.shared.delegate as? AppDelegate else {
-                return
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
+            return
         }
-        
-        let managedContext =
-            appDelegate.persistentContainer.viewContext
-        
+        let managedContext = appDelegate.persistentContainer.viewContext
         //2
-        let fetchRequest =
-            NSFetchRequest<NSManagedObject>(entityName: "Person")
-        
+        let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: "Person")
         //3
         do {
             people = try managedContext.fetch(fetchRequest)
@@ -74,7 +67,7 @@ class ViewController: UIViewController, UITableViewDelegate {
         
         present(alert, animated: true)
     }
-    // for add data.
+    // Save Record.
     func save(name: String,age: Double) {
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
             return
@@ -101,24 +94,62 @@ extension ViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return people.count
     }
+    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-            
-            let person = people[indexPath.row]
-            var cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
-                cell = UITableViewCell(style: UITableViewCellStyle.value1, reuseIdentifier: "Cell")
-            cell.textLabel?.text = person.value(forKeyPath: "name") as? String
-            cell.detailTextLabel?.text = String (describing: person.value(forKeyPath: "age") as! integer_t)
-            return cell
-    }
-    func tableView(_ tableView: UITableView, willDeselectRowAtIndexPath indexPath: NSIndexPath) {
-        let cell = self.tableView.cellForRow(at: indexPath as IndexPath)
-        NSLog("did select and the text is \(String(describing: cell?.textLabel?.text))")
-    }
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let cell = tableView.cellForRow(at: indexPath)!
+        
         let person = people[indexPath.row]
-        cell.accessoryType = UITableViewCellAccessoryType.none
-        NSLog("select name is \(String(describing: person.value(forKeyPath: "name") as! String))")
-        NSLog("select age is \(String(describing: person.value(forKeyPath: "age") as! integer_t))")
+        var cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
+        cell = UITableViewCell(style: UITableViewCellStyle.value1, reuseIdentifier: "Cell")
+        cell.textLabel?.text = person.value(forKeyPath: "name") as? String
+        cell.detailTextLabel?.text = String (describing: person.value(forKeyPath: "age") as! integer_t)
+        return cell
+    }
+    
+//    func tableView(_ tableView: UITableView, willDeselectRowAtIndexPath indexPath: NSIndexPath) {
+//        let cell = self.tableView.cellForRow(at: indexPath as IndexPath)
+//        NSLog("did select and the text is \(String(describing: cell?.textLabel?.text))")
+//    }
+//
+//    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+//        let cell = tableView.cellForRow(at: indexPath)!
+//        let person = people[indexPath.row]
+//        cell.accessoryType = UITableViewCellAccessoryType.none
+//        NSLog("select name is \(String(describing: person.value(forKeyPath: "name") as! String))")
+//        NSLog("select age is \(String(describing: person.value(forKeyPath: "age") as! integer_t))")
+//    }
+    
+    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        return true
+    }
+
+    func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
+        
+        let edit = UITableViewRowAction(style: .normal, title: "Edit") { action, index in
+            print("Edit button tapped")
+        }
+        edit.backgroundColor = UIColor.lightGray
+        let delete = UITableViewRowAction(style: .normal, title: "Delete") { action, index in
+            let noteEntity = "Person" //Entity Name
+            let managedContext = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+            let person = self.people[indexPath.row]
+            managedContext.delete(person)
+            do {
+                try managedContext.save()
+            } catch let error as NSError {
+                print("Error While Deleting Note: \(error.userInfo)")
+            }
+            //Code to Fetch New Data From The DB and Reload Table.
+            let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: noteEntity)
+            //3
+            do {
+                self.people = try managedContext.fetch(fetchRequest) as! [NSManagedObject]
+            } catch let error as NSError {
+                print("Could not fetch. \(error), \(error.userInfo)")
+            }
+            tableView.reloadData()
+        }
+        delete.backgroundColor = UIColor.blue
+        
+        return [delete, edit]
     }
 }
