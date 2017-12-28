@@ -2,7 +2,7 @@
 //  AppDelegate.swift
 //  CoreDAtaDemo
 //
-//  Created by prasanna on 12/21/17.
+//  Created by Mihir Oza on 12/21/17.
 //  Copyright © 2017 Ashadeep. All rights reserved.
 //
 
